@@ -58,5 +58,3 @@ services:
             - scinetwork
 networks:
     scinetwork:
-        external:
-            name: scinetwork # Reference our network that was created by Docker Compose when we launched our two main containers earlier. Name generated automaticaly. Use `docker network ls` to list all networks and their names.
