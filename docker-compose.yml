@@ -1,0 +1,62 @@
+version: '3'
+
+services: 
+
+    mysql:
+        image: mariadb:${MYSQL_VERSION}
+        container_name: mysql
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        volumes: 
+            - ./data/data_mariadb10:/var/lib/mysql
+        restart: unless-stopped
+        networks: 
+            - scinetwork
+
+    sci-web:
+        image: pjaun/apache-php7
+        container_name: sci-web
+        volumes:  
+            - /home/dept:/var/www/html
+        depends_on: 
+            - mysql
+        restart: unless-stopped
+        networks: 
+            - scinetwork
+    
+    epg-web:
+        image: pjaun/php-5.3-apache
+        container_name: epg-web
+        volumes:  
+            - /home/epg:/var/www/html
+        depends_on: 
+            - mysql
+
+        restart: unless-stopped
+        networks: 
+            - scinetwork
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        depends_on: 
+            - mysql
+        environment: 
+            - PMA_ARBITRARY=0
+            - PMA_HOST=${MYSQL_HOST}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+
+        restart: unless-stopped
+        links: 
+            - mysql
+        networks: 
+            - scinetwork
+networks:
+    scinetwork:
+        external:
+            name: scinetwork # Reference our network that was created by Docker Compose when we launched our two main containers earlier. Name generated automaticaly. Use `docker network ls` to list all networks and their names.
